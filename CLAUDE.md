@@ -77,10 +77,23 @@ The tool supports the following LLM tokenizers:
 ### Claude Models
 - **Claude**: Uses Anthropic's Token Counting API with local caching
 - Default model: `claude-3-5-sonnet-20241022` (configurable via `--claude-model` flag)
+- **Multiple Claude models**: Use inline syntax `claude:model-name` to specify different models
+  - Example: `claude:claude-3-5-sonnet-20241022`
+  - Example: `claude:claude-3-5-haiku-20241022`
+  - This allows comparing multiple Claude models side-by-side
+
+**Available Claude Models (as of January 2025):**
+- `claude-3-5-sonnet-20241022` (default)
+- `claude-3-5-haiku-20241022`
+- `claude-3-opus-20240229`
+- And other Anthropic models available via the Token Counting API
 
 ### LLaMA Models
 - **LLaMA**: Uses SentencePiece tokenizer
 - Requires path to `tokenizer.model` file via `--llama-model` flag
+- **Inline path**: Use `llama:/path/to/tokenizer.model` to specify path directly
+  - Example: `llama:/models/llama2/tokenizer.model`
+  - This allows comparing multiple LLaMA models with different tokenizer files
 
 ## Architecture Considerations
 

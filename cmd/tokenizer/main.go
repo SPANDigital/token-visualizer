@@ -19,32 +19,32 @@ var CLI struct {
 }
 
 type VisualizeCmd struct {
-	Model          string `help:"Model to use: gpt4, gpt3.5, gpt5, gpt5-mini, gpt5-nano, claude, llama" default:"gpt4" enum:"gpt4,gpt3.5,gpt5,gpt5-mini,gpt5-nano,claude,llama"`
+	Model          string `help:"Model to use: gpt4, gpt3.5, gpt5, gpt5-mini, gpt5-nano, claude[:model-name], llama[:path]" default:"gpt4"`
 	Format         string `help:"Output format: terminal, markdown, html" default:"terminal" enum:"terminal,markdown,html"`
 	ShowIDs        bool   `help:"Show token IDs" short:"i" name:"show-ids"`
 	ShowBoundaries bool   `help:"Show token boundaries" short:"b"`
 	Encoding       string `help:"Tiktoken encoding (for GPT models)" default:"cl100k_base"`
-	ClaudeModel    string `help:"Claude model name" default:"claude-3-5-sonnet-20241022"`
-	LlamaModel     string `help:"Path to LLaMA tokenizer.model file"`
+	ClaudeModel    string `help:"Claude model name (fallback if not specified in model string)" default:"claude-3-5-sonnet-20241022"`
+	LlamaModel     string `help:"Path to LLaMA tokenizer.model file (fallback if not specified in model string)"`
 	NoCache        bool   `help:"Disable caching for Claude API" short:"n"`
 }
 
 type CountCmd struct {
-	Models      []string `help:"Models to count: gpt4, gpt3.5, gpt5, gpt5-mini, gpt5-nano, claude, llama" default:"gpt4"`
+	Models      []string `help:"Models to count: gpt4, gpt3.5, gpt5, gpt5-mini, gpt5-nano, claude[:model-name], llama[:path]" default:"gpt4"`
 	Encoding    string   `help:"Tiktoken encoding (for GPT models)" default:"cl100k_base"`
-	ClaudeModel string   `help:"Claude model name" default:"claude-3-5-sonnet-20241022"`
-	LlamaModel  string   `help:"Path to LLaMA tokenizer.model file"`
+	ClaudeModel string   `help:"Claude model name (fallback if not specified in model string)" default:"claude-3-5-sonnet-20241022"`
+	LlamaModel  string   `help:"Path to LLaMA tokenizer.model file (fallback if not specified in model string)"`
 	NoCache     bool     `help:"Disable caching for Claude API" short:"n"`
 }
 
 type CompareCmd struct {
-	Models         []string `help:"Models to compare: gpt4, gpt3.5, gpt5, gpt5-mini, gpt5-nano, claude, llama" required:""`
+	Models         []string `help:"Models to compare: gpt4, gpt3.5, gpt5, gpt5-mini, gpt5-nano, claude[:model-name], llama[:path]" required:""`
 	Format         string   `help:"Output format: terminal, markdown, html" default:"terminal" enum:"terminal,markdown,html"`
 	ShowIDs        bool     `help:"Show token IDs" short:"i" name:"show-ids"`
 	ShowBoundaries bool     `help:"Show token boundaries" short:"b"`
 	Encoding       string   `help:"Tiktoken encoding (for GPT models)" default:"cl100k_base"`
-	ClaudeModel    string   `help:"Claude model name" default:"claude-3-5-sonnet-20241022"`
-	LlamaModel     string   `help:"Path to LLaMA tokenizer.model file"`
+	ClaudeModel    string   `help:"Claude model name (fallback if not specified in model string)" default:"claude-3-5-sonnet-20241022"`
+	LlamaModel     string   `help:"Path to LLaMA tokenizer.model file (fallback if not specified in model string)"`
 	NoCache        bool     `help:"Disable caching for Claude API" short:"n"`
 }
 
@@ -186,7 +186,11 @@ func readInput() (string, error) {
 }
 
 func createTokenizer(model, encoding, claudeModel, llamaModel string, useCache bool) (tokenizers.Tokenizer, error) {
-	switch model {
+	// Check if model contains a colon (model:specification)
+	parts := strings.SplitN(model, ":", 2)
+	modelType := parts[0]
+
+	switch modelType {
 	case "gpt4":
 		return tokenizers.NewTikTokenizer(encoding)
 	case "gpt3.5":
@@ -195,12 +199,24 @@ func createTokenizer(model, encoding, claudeModel, llamaModel string, useCache b
 		// GPT-5 models all use o200k_base encoding
 		return tokenizers.NewTikTokenizer("o200k_base")
 	case "claude":
-		return tokenizers.NewClaudeTokenizer(claudeModel, useCache)
-	case "llama":
-		if llamaModel == "" {
-			return nil, fmt.Errorf("LLaMA model requires --llama-model path to tokenizer.model file")
+		// If model is "claude:model-name", use the specified model
+		// Otherwise fall back to --claude-model flag
+		actualModel := claudeModel
+		if len(parts) == 2 && parts[1] != "" {
+			actualModel = parts[1]
 		}
-		return tokenizers.NewLLaMATokenizer(llamaModel)
+		return tokenizers.NewClaudeTokenizer(actualModel, useCache)
+	case "llama":
+		// If model is "llama:/path", use the specified path
+		// Otherwise fall back to --llama-model flag
+		actualPath := llamaModel
+		if len(parts) == 2 && parts[1] != "" {
+			actualPath = parts[1]
+		}
+		if actualPath == "" {
+			return nil, fmt.Errorf("LLaMA model requires --llama-model path or llama:/path/to/tokenizer.model")
+		}
+		return tokenizers.NewLLaMATokenizer(actualPath)
 	default:
 		return nil, fmt.Errorf("unknown model: %s", model)
 	}
