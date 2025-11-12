@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Token Visualizer is a tool for visualizing and analyzing tokens across multiple LLM tokenizers including GPT-4, GPT-3.5, Claude, LLaMA, and others.
+Token Visualizer is a tool for visualizing and analyzing tokens across multiple LLM tokenizers including GPT-4, GPT-3.5, GPT-5 (including gpt5-mini and gpt5-nano), Claude, LLaMA, and others.
 
 **Language:** Go 1.25 (REQUIRED - do not use older Go versions)
 
-**Current Status:** Early development phase - repository structure is not yet established.
+**Current Status:** Active development with working CLI, multi-tokenizer support, and CI/CD pipeline.
 
 ## Development Commands
 
@@ -61,22 +61,43 @@ func main() {
 }
 ```
 
+## Supported Models
+
+The tool supports the following LLM tokenizers:
+
+### OpenAI Models
+- **GPT-4**: Uses `cl100k_base` encoding (default) or configurable via `--encoding` flag
+- **GPT-3.5**: Uses `cl100k_base` encoding (default) or configurable via `--encoding` flag
+- **GPT-5**: Uses `o200k_base` encoding (hardcoded, cannot be overridden)
+- **GPT-5-mini**: Uses `o200k_base` encoding (hardcoded, cannot be overridden)
+- **GPT-5-nano**: Uses `o200k_base` encoding (hardcoded, cannot be overridden)
+
+**Note:** All GPT-5 variants use the same tokenization (`o200k_base`), so token counts and boundaries are identical across gpt5, gpt5-mini, and gpt5-nano.
+
+### Claude Models
+- **Claude**: Uses Anthropic's Token Counting API with local caching
+- Default model: `claude-3-5-sonnet-20241022` (configurable via `--claude-model` flag)
+
+### LLaMA Models
+- **LLaMA**: Uses SentencePiece tokenizer
+- Requires path to `tokenizer.model` file via `--llama-model` flag
+
 ## Architecture Considerations
 
 When implementing this project, consider:
 
-1. **Multi-tokenizer support:** The architecture should support pluggable tokenizer implementations for different models (GPT-4, GPT-3.5, Claude, LLaMA, etc.)
+1. **Multi-tokenizer support:** The architecture supports pluggable tokenizer implementations via the `Tokenizer` interface
 
-2. **Tokenizer interface:** Create a common interface that all tokenizer implementations conform to, enabling easy addition of new tokenizers
+2. **Tokenizer interface:** All tokenizers implement a common interface in `internal/tokenizers/interface.go`
 
-3. **Visualization layer:** Separate tokenization logic from visualization/presentation logic
+3. **Visualization layer:** Tokenization logic is separated from presentation logic in `internal/output/`
 
-4. **Token libraries:** Research and integrate existing tokenizer libraries:
-   - OpenAI's tiktoken (Go port: github.com/pkoukk/tiktoken-go or similar)
-   - Anthropic's tokenizer (may need to interface with Python or use API)
-   - HuggingFace tokenizers for LLaMA and other models
+4. **Token libraries:** Currently integrated:
+   - OpenAI's tiktoken: `github.com/pkoukk/tiktoken-go`
+   - Anthropic's Token Counting API: Direct HTTP calls with caching
+   - SentencePiece for LLaMA: `github.com/lwch/sentencepiece`
 
-5. **Performance:** Token visualization may involve processing large texts - consider streaming or chunking for large inputs
+5. **Performance:** Implements caching for Claude API calls to reduce latency and API costs
 
 ## Git Workflow
 

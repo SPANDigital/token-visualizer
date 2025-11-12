@@ -19,7 +19,7 @@ var CLI struct {
 }
 
 type VisualizeCmd struct {
-	Model          string `help:"Model to use: gpt4, gpt3.5, claude, llama" default:"gpt4" enum:"gpt4,gpt3.5,claude,llama"`
+	Model          string `help:"Model to use: gpt4, gpt3.5, gpt5, gpt5-mini, gpt5-nano, claude, llama" default:"gpt4" enum:"gpt4,gpt3.5,gpt5,gpt5-mini,gpt5-nano,claude,llama"`
 	Format         string `help:"Output format: terminal, markdown, html" default:"terminal" enum:"terminal,markdown,html"`
 	ShowIDs        bool   `help:"Show token IDs" short:"i" name:"show-ids"`
 	ShowBoundaries bool   `help:"Show token boundaries" short:"b"`
@@ -30,7 +30,7 @@ type VisualizeCmd struct {
 }
 
 type CountCmd struct {
-	Models      []string `help:"Models to count: gpt4, gpt3.5, claude, llama" default:"gpt4"`
+	Models      []string `help:"Models to count: gpt4, gpt3.5, gpt5, gpt5-mini, gpt5-nano, claude, llama" default:"gpt4"`
 	Encoding    string   `help:"Tiktoken encoding (for GPT models)" default:"cl100k_base"`
 	ClaudeModel string   `help:"Claude model name" default:"claude-3-5-sonnet-20241022"`
 	LlamaModel  string   `help:"Path to LLaMA tokenizer.model file"`
@@ -38,7 +38,7 @@ type CountCmd struct {
 }
 
 type CompareCmd struct {
-	Models         []string `help:"Models to compare: gpt4, gpt3.5, claude, llama" required:""`
+	Models         []string `help:"Models to compare: gpt4, gpt3.5, gpt5, gpt5-mini, gpt5-nano, claude, llama" required:""`
 	Format         string   `help:"Output format: terminal, markdown, html" default:"terminal" enum:"terminal,markdown,html"`
 	ShowIDs        bool     `help:"Show token IDs" short:"i" name:"show-ids"`
 	ShowBoundaries bool     `help:"Show token boundaries" short:"b"`
@@ -191,6 +191,9 @@ func createTokenizer(model, encoding, claudeModel, llamaModel string, useCache b
 		return tokenizers.NewTikTokenizer(encoding)
 	case "gpt3.5":
 		return tokenizers.NewTikTokenizer(encoding)
+	case "gpt5", "gpt5-mini", "gpt5-nano":
+		// GPT-5 models all use o200k_base encoding
+		return tokenizers.NewTikTokenizer("o200k_base")
 	case "claude":
 		return tokenizers.NewClaudeTokenizer(claudeModel, useCache)
 	case "llama":
