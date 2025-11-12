@@ -60,9 +60,9 @@ echo "Your text here" | ./token-visualizer visualize [flags]
 ```
 
 **Flags:**
-- `--model` - Model to use: `gpt4`, `gpt3.5`, `gpt5`, `gpt5-mini`, `gpt5-nano`, `claude[:model-name]`, `llama[:path]` (default: `gpt4`)
-  - For Claude, you can specify the model inline: `claude:claude-3-5-sonnet-20241022`
-  - For LLaMA, you can specify the path inline: `llama:/path/to/tokenizer.model`
+- `--model` - Model to use: `gpt4`, `gpt3.5`, `gpt5`, `gpt5-mini`, `gpt5-nano`, `claude:model-name`, `llama:path` (default: `gpt4`)
+  - For Claude, use format: `claude:claude-3-5-sonnet-20241022`
+  - For LLaMA, use format: `llama:/path/to/tokenizer.model`
 - `--format` - Output format: `terminal`, `markdown`, `html` (default: `terminal`)
 - `--show-ids`, `-i` - Show token IDs
 - `--show-boundaries`, `-b` - Show token boundaries
@@ -72,10 +72,6 @@ echo "Your text here" | ./token-visualizer visualize [flags]
   - `p50k_base` - Codex
   - `r50k_base` - GPT-3
   - **Note:** GPT-5 models automatically use `o200k_base` encoding regardless of this flag
-- `--claude-model` - Claude model name fallback (default: `claude-3-5-sonnet-20241022`)
-  - Used when `--model claude` is specified without inline model name
-- `--llama-model` - Path to LLaMA `tokenizer.model` file fallback
-  - Used when `--model llama` is specified without inline path
 - `--no-cache`, `-n` - Disable caching for Claude API
 
 ### `count`
@@ -122,7 +118,7 @@ echo "The quick brown fox" | ./token-visualizer count \
 
 ```bash
 export ANTHROPIC_API_KEY="your-api-key"
-echo "Hello, world!" | ./token-visualizer --model claude
+echo "Hello, world!" | ./token-visualizer --model claude:claude-3-5-sonnet-20241022
 ```
 
 ### Compare different Claude models
@@ -138,8 +134,7 @@ echo "Hello, world!" | ./token-visualizer compare \
 
 ```bash
 echo "Hello, world!" | ./token-visualizer \
-  --model llama \
-  --llama-model /path/to/tokenizer.model
+  --model llama:/path/to/tokenizer.model
 ```
 
 ### Export comparison to HTML
