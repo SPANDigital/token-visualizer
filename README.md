@@ -1,6 +1,6 @@
 # token-visualizer
 
-A modern CLI tool for visualizing and analyzing tokens from various LLM tokenizers (GPT-4, GPT-3.5, Claude, LLaMA).
+A modern CLI tool for visualizing and analyzing tokens from various LLM tokenizers (GPT-4, GPT-3.5, GPT-5, Claude, LLaMA).
 
 Built following Unix philosophy: reads from stdin, outputs to stdout, with colorized terminal output or markdown/HTML export.
 
@@ -10,7 +10,7 @@ Built following Unix philosophy: reads from stdin, outputs to stdout, with color
 - 📊 **Multi-model comparison** side-by-side
 - 📄 **Multiple output formats**: terminal, markdown, HTML
 - 🔄 **Supports multiple tokenizers**:
-  - OpenAI (GPT-4, GPT-3.5, GPT-4o) via tiktoken
+  - OpenAI (GPT-4, GPT-3.5, GPT-5, GPT-5-mini, GPT-5-nano) via tiktoken
   - Anthropic Claude via API
   - Meta LLaMA via SentencePiece
 - ⚡ **Fast** with local caching for API calls
@@ -60,15 +60,16 @@ echo "Your text here" | ./token-visualizer visualize [flags]
 ```
 
 **Flags:**
-- `--model` - Model to use: `gpt4`, `gpt3.5`, `claude`, `llama` (default: `gpt4`)
+- `--model` - Model to use: `gpt4`, `gpt3.5`, `gpt5`, `gpt5-mini`, `gpt5-nano`, `claude`, `llama` (default: `gpt4`)
 - `--format` - Output format: `terminal`, `markdown`, `html` (default: `terminal`)
 - `--show-ids`, `-i` - Show token IDs
 - `--show-boundaries`, `-b` - Show token boundaries
-- `--encoding` - Tiktoken encoding for GPT models (default: `cl100k_base`)
+- `--encoding` - Tiktoken encoding for GPT-4/3.5 models (default: `cl100k_base`)
   - `cl100k_base` - GPT-4, GPT-3.5
-  - `o200k_base` - GPT-4o
+  - `o200k_base` - GPT-4o (also used automatically for GPT-5 models)
   - `p50k_base` - Codex
   - `r50k_base` - GPT-3
+  - **Note:** GPT-5 models automatically use `o200k_base` encoding regardless of this flag
 - `--claude-model` - Claude model name (default: `claude-3-5-sonnet-20241022`)
 - `--llama-model` - Path to LLaMA `tokenizer.model` file
 - `--no-cache`, `-n` - Disable caching for Claude API
@@ -78,7 +79,7 @@ echo "Your text here" | ./token-visualizer visualize [flags]
 Show only token counts (no visualization).
 
 ```bash
-echo "Your text here" | ./token-visualizer count --models gpt4,gpt3.5,claude
+echo "Your text here" | ./token-visualizer count --models gpt4,gpt5,claude
 ```
 
 ### `compare`
@@ -97,15 +98,20 @@ echo "Your text here" | ./token-visualizer compare --models gpt4,claude [flags]
 echo "The quick brown fox" | ./token-visualizer --show-ids
 ```
 
-### Compare GPT-4 and GPT-4o encodings
+### Compare GPT-4 and GPT-5 encodings
 
 ```bash
 echo "Hello, world!" | ./token-visualizer compare \
-  --models gpt4,gpt4 \
-  --encoding cl100k_base \
+  --models gpt4,gpt5 \
   --show-ids
+```
 
-# For o200k_base, you'll need to handle it differently or add support
+### Compare GPT-5 variants
+
+```bash
+# All GPT-5 variants use the same o200k_base encoding
+echo "The quick brown fox" | ./token-visualizer count \
+  --models gpt5,gpt5-mini,gpt5-nano
 ```
 
 ### Use Claude tokenizer (requires API key)
@@ -128,7 +134,7 @@ echo "Hello, world!" | ./token-visualizer \
 ```bash
 echo "The quick brown fox jumps over the lazy dog." | \
   ./token-visualizer compare \
-  --models gpt4,gpt3.5 \
+  --models gpt4,gpt5 \
   --format html \
   --show-ids > comparison.html
 ```
@@ -177,18 +183,18 @@ This tool follows Unix philosophy:
 
 ```bash
 # From a file
-cat article.txt | ./token-visualizer count --models gpt4,claude
+cat article.txt | ./token-visualizer count --models gpt4,gpt5,claude
 
 # From curl
-curl -s https://example.com | ./token-visualizer
+curl -s https://example.com | ./token-visualizer --model gpt5
 
 # Chain with other tools
-cat large-file.txt | head -n 10 | ./token-visualizer --show-ids
+cat large-file.txt | head -n 10 | ./token-visualizer --model gpt5 --show-ids
 
 # Compare multiple files
 for file in *.txt; do
   echo "=== $file ==="
-  cat "$file" | ./token-visualizer count --models gpt4,claude
+  cat "$file" | ./token-visualizer count --models gpt4,gpt5,claude
 done
 ```
 
