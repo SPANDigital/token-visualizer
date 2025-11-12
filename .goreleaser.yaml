@@ -1,0 +1,177 @@
+# GoReleaser configuration for token-visualizer
+# https://goreleaser.com
+
+version: 2
+
+before:
+  hooks:
+    # Ensure dependencies are tidy
+    - go mod tidy
+    # Run tests before building
+    - go test ./...
+
+builds:
+  - id: token-visualizer
+    main: ./cmd/tokenizer
+    binary: token-visualizer
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+      - arm
+    goarm:
+      - "7"
+    ignore:
+      # Windows on ARM is not commonly used
+      - goos: windows
+        goarch: arm
+      - goos: windows
+        goarch: arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+      - -X main.builtBy=goreleaser
+    flags:
+      - -trimpath
+
+# Create universal binaries for macOS (Intel + ARM)
+universal_binaries:
+  - id: token-visualizer-universal
+    replace: true
+    name_template: "token-visualizer"
+
+archives:
+  - id: default
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    files:
+      - README.md
+      - LICENSE
+      - CLAUDE.md
+
+checksum:
+  name_template: "checksums.txt"
+  algorithm: sha256
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+      - "^ci:"
+      - Merge pull request
+      - Merge branch
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: "Bug fixes"
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: "Enhancements"
+      regexp: '^.*?enhance(\([[:word:]]+\))??!?:.+$'
+      order: 2
+    - title: Others
+      order: 999
+
+# GitHub Release configuration
+release:
+  github:
+    owner: SPANDigital
+    name: token-visualizer
+  draft: false
+  prerelease: auto
+  mode: append
+  header: |
+    ## Token Visualizer {{ .Tag }}
+
+    A modern CLI tool for visualizing and analyzing tokens from various LLM tokenizers.
+
+    ### Installation
+
+    **Homebrew (macOS/Linux):**
+    ```bash
+    brew install SPANDigital/tap/token-visualizer
+    ```
+
+    **Manual Installation:**
+    Download the appropriate binary for your platform below and extract it to your PATH.
+  footer: |
+    ---
+    **Full Changelog**: https://github.com/SPANDigital/token-visualizer/compare/{{ .PreviousTag }}...{{ .Tag }}
+
+    🤖 Built with [GoReleaser](https://goreleaser.com)
+
+# Homebrew Tap (using homebrew_casks for CLI tools)
+homebrew_casks:
+  - repository:
+      owner: SPANDigital
+      name: homebrew-tap
+      token: "{{ .Env.GH_PAT }}"
+    homepage: https://github.com/SPANDigital/token-visualizer
+    description: "Modern CLI tool for visualizing and analyzing LLM tokens"
+    license: MIT
+    skip_upload: auto
+
+# Container images using ko (multi-arch)
+kos:
+  - id: token-visualizer
+    main: ./cmd/tokenizer
+    working_dir: .
+    tags:
+      - "{{ .Tag }}"
+      - "{{ if not .Prerelease }}latest{{ end }}"
+    bare: true
+    preserve_import_paths: false
+    base_import_paths: false
+    platforms:
+      - linux/amd64
+      - linux/arm64
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+    sbom: spdx
+    labels:
+      org.opencontainers.image.created: "{{.Date}}"
+      org.opencontainers.image.title: "{{.ProjectName}}"
+      org.opencontainers.image.revision: "{{.FullCommit}}"
+      org.opencontainers.image.version: "{{.Version}}"
+      org.opencontainers.image.source: "https://github.com/SPANDigital/token-visualizer"
+      org.opencontainers.image.description: "Modern CLI tool for visualizing and analyzing LLM tokens"
+      org.opencontainers.image.licenses: "MIT"
+
+# Signs checksums
+signs:
+  - artifacts: checksum
+    cmd: sh
+    args:
+      - -c
+      - >-
+        echo "${artifact} signed" > "${signature}"
+
+# Announce releases
+announce:
+  skip: "{{gt .Patch 0}}"

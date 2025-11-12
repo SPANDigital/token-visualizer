@@ -1,0 +1,75 @@
+name: Nightly Build
+
+on:
+  schedule:
+    # Run at midnight UTC, Tuesday through Saturday
+    - cron: "0 0 * * 2-6"
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  nightly:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"
+          cache: true
+
+      - name: Delete existing nightly tag
+        continue-on-error: true
+        run: |
+          git push --delete origin nightly || true
+          git tag -d nightly || true
+
+      - name: Create nightly tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a nightly -m "Nightly build $(date +'%Y-%m-%d %H:%M:%S')"
+          git push origin nightly
+
+      - name: Set up ko
+        uses: ko-build/setup-ko@v0.7
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run GoReleaser (Nightly)
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --clean --snapshot
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          KO_DOCKER_REPO: ghcr.io/${{ github.repository_owner }}/token-visualizer
+
+      - name: Upload nightly artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-builds
+          path: dist/
+          retention-days: 7
+
+      - name: Clean up old nightly releases
+        uses: dev-drprasad/delete-older-releases@v0.3.4
+        with:
+          keep_latest: 5
+          delete_tags: true
+          delete_tag_pattern: nightly
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

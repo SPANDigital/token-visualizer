@@ -192,6 +192,29 @@ for file in *.txt; do
 done
 ```
 
+## CI/CD
+
+This project uses a modern CI/CD pipeline with:
+- **GitHub Actions** for automated testing and deployment
+- **GoReleaser** for building and publishing releases
+- **ko** for building container images
+
+See [CI_CD.md](CI_CD.md) for detailed documentation.
+
+### Quick Release
+
+```bash
+git tag -a v1.0.0 -m "Release v1.0.0"
+git push origin v1.0.0
+```
+
+This automatically:
+- Builds binaries for all platforms
+- Creates container images (multi-arch)
+- Publishes to GitHub Releases
+- Updates Homebrew tap
+- Generates changelog
+
 ## License
 
 See [LICENSE](LICENSE) file.
@@ -202,3 +225,4 @@ Contributions welcome! Please ensure:
 - Code follows Go 1.25 standards
 - Uses Kong for CLI handling
 - Maintains Unix philosophy principles
+- Tests pass locally before submitting PR
