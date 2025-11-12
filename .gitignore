@@ -12,10 +12,11 @@
 *.test
 
 # Code coverage profiles and other test artifacts
-*.out
+# *.out - Commented out due to Windows path issues
 coverage.*
 *.coverprofile
 profile.cov
+cover.out
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
