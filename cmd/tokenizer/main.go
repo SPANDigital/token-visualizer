@@ -195,13 +195,13 @@ func createTokenizer(model, encoding string, useCache bool) (tokenizers.Tokenize
 	case "claude":
 		// Require claude:model-name format
 		if len(parts) != 2 || parts[1] == "" {
-			return nil, fmt.Errorf("Claude model requires format: claude:model-name (e.g., claude:claude-3-5-sonnet-20241022)")
+			return nil, fmt.Errorf("claude model requires format: claude:model-name (e.g., claude:claude-3-5-sonnet-20241022)")
 		}
 		return tokenizers.NewClaudeTokenizer(parts[1], useCache)
 	case "llama":
 		// Require llama:/path format
 		if len(parts) != 2 || parts[1] == "" {
-			return nil, fmt.Errorf("LLaMA model requires format: llama:/path/to/tokenizer.model")
+			return nil, fmt.Errorf("llama model requires format: llama:/path/to/tokenizer.model")
 		}
 		return tokenizers.NewLLaMATokenizer(parts[1])
 	default:
