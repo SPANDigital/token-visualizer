@@ -40,7 +40,7 @@ echo "Hello, world!" | ./token-visualizer
 echo "Hello, world!" | ./token-visualizer --show-ids --show-boundaries
 
 # Compare tokenization across models
-echo "Hello, world!" | ./token-visualizer compare --models gpt4,gpt3.5
+echo "Hello, world!" | ./token-visualizer compare --models gpt4,gpt5
 
 # Export to markdown
 echo "Hello, world!" | ./token-visualizer --format markdown > output.md
@@ -79,7 +79,7 @@ echo "Your text here" | ./token-visualizer visualize [flags]
 Show only token counts (no visualization).
 
 ```bash
-echo "Your text here" | ./token-visualizer count --models gpt4,gpt5,claude
+echo "Your text here" | ./token-visualizer count --models gpt4,gpt5,claude:claude-3-5-sonnet-20241022
 ```
 
 ### `compare`
@@ -87,7 +87,7 @@ echo "Your text here" | ./token-visualizer count --models gpt4,gpt5,claude
 Compare tokenization across multiple models side-by-side.
 
 ```bash
-echo "Your text here" | ./token-visualizer compare --models gpt4,claude [flags]
+echo "Your text here" | ./token-visualizer compare --models gpt4,claude:claude-3-5-sonnet-20241022 [flags]
 ```
 
 ## Examples
