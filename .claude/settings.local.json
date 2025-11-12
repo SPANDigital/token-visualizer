@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "Bash(go mod init:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:www.pixelstech.net)",
+      "Bash(set -o pipefail)",
+      "Bash(go get:*)",
+      "Bash(go build:*)",
+      "Bash(./token-visualizer:*)",
+      "Bash(tree:*)",
+      "Bash(go mod tidy:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(go install:*)",
+      "Bash(goreleaser check:*)",
+      "Bash(KO_DOCKER_REPO=ghcr.io/spandigital/token-visualizer goreleaser check:*)",
+      "Bash(goreleaser build:*)",
+      "Bash(KO_DOCKER_REPO=ghcr.io/spandigital/token-visualizer goreleaser build:*)",
+      "Bash(export KO_DOCKER_REPO=ghcr.io/spandigital/token-visualizer)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "WebFetch(domain:golangci-lint.run)",
+      "Bash(gofmt:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

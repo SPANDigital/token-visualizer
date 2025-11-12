@@ -130,7 +130,9 @@ func (c *ClaudeTokenizer) CountTokens(ctx context.Context, text string) (int, er
 	if err != nil {
 		return 0, fmt.Errorf("failed to send request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)

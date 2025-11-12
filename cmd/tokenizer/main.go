@@ -30,11 +30,11 @@ type VisualizeCmd struct {
 }
 
 type CountCmd struct {
-	Models     []string `help:"Models to count: gpt4, gpt3.5, claude, llama" default:"gpt4"`
-	Encoding   string   `help:"Tiktoken encoding (for GPT models)" default:"cl100k_base"`
-	ClaudeModel string `help:"Claude model name" default:"claude-3-5-sonnet-20241022"`
-	LlamaModel  string `help:"Path to LLaMA tokenizer.model file"`
-	NoCache     bool   `help:"Disable caching for Claude API" short:"n"`
+	Models      []string `help:"Models to count: gpt4, gpt3.5, claude, llama" default:"gpt4"`
+	Encoding    string   `help:"Tiktoken encoding (for GPT models)" default:"cl100k_base"`
+	ClaudeModel string   `help:"Claude model name" default:"claude-3-5-sonnet-20241022"`
+	LlamaModel  string   `help:"Path to LLaMA tokenizer.model file"`
+	NoCache     bool     `help:"Disable caching for Claude API" short:"n"`
 }
 
 type CompareCmd struct {

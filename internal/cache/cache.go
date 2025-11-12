@@ -28,7 +28,7 @@ func NewCache(dir string) (*Cache, error) {
 	}
 
 	// Create cache directory if it doesn't exist
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return nil, fmt.Errorf("failed to create cache directory: %w", err)
 	}
 
@@ -67,7 +67,7 @@ func (c *Cache) Set(key string, value interface{}) error {
 	}
 
 	filePath := c.keyToPath(key)
-	if err := os.WriteFile(filePath, data, 0644); err != nil {
+	if err := os.WriteFile(filePath, data, 0o644); err != nil {
 		return fmt.Errorf("failed to write cache file: %w", err)
 	}
 
