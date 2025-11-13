@@ -65,9 +65,9 @@ func (t *LLaMA3Tokenizer) Encode(ctx context.Context, text string) (*Tokenizatio
 	for i := range tokenIDs {
 		tokens[i] = Token{
 			Text:  tokenStrings[i],
-			ID:    int(tokenIDs[i]),
-			Start: int(offsets[i][0]),
-			End:   int(offsets[i][1]),
+			ID:    tokenIDs[i],
+			Start: offsets[i][0],
+			End:   offsets[i][1],
 		}
 	}
 
