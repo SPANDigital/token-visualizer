@@ -23,15 +23,12 @@ builds:
     goarch:
       - amd64
       - arm64
-      - arm
-    goarm:
-      - "7"
     ignore:
       # Windows on ARM is not commonly used
       - goos: windows
-        goarch: arm
-      - goos: windows
         goarch: arm64
+      # ARM 32-bit not supported due to sugarme/tokenizer integer overflow on 32-bit systems
+      # See: https://github.com/sugarme/tokenizer/issues (scanner.Buffer overflow with 2GB constant)
     ldflags:
       - -s -w
       - -X main.version={{.Version}}
