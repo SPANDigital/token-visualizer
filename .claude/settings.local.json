@@ -25,7 +25,10 @@
       "Bash(gh run list:*)",
       "Bash(gh run view:*)",
       "WebFetch(domain:golangci-lint.run)",
-      "Bash(gofmt:*)"
+      "Bash(gofmt:*)",
+      "Bash(git tag -a v0.1.0 -m \"$(cat <<''EOF''\nRelease v0.1.0\n\nInitial release of token-visualizer - a modern CLI tool for visualizing \nand analyzing tokens from various LLM tokenizers.\n\nFeatures:\n- Support for multiple tokenizers: GPT-4, GPT-3.5, GPT-5 (all variants), \n  Claude, and LLaMA\n- Colorized terminal output with token boundaries and IDs\n- Multi-model side-by-side comparison\n- Multiple output formats: terminal, markdown, HTML\n- Unix-friendly: reads from stdin, writes to stdout\n- Local caching for Claude API calls\n- Multi-platform support: Linux, macOS, Windows\n\nModel Syntax:\n- GPT models: gpt4, gpt3.5, gpt5, gpt5-mini, gpt5-nano\n- Claude models: claude:model-name (e.g., claude:claude-3-5-sonnet-20241022)\n- LLaMA models: llama:/path/to/tokenizer.model\n\nBuilt with Go 1.25 and Kong CLI framework.\nEOF\n)\")",
+      "Bash(git tag:*)",
+      "Bash(go test:*)"
     ],
     "deny": [],
     "ask": []

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Token Visualizer is a tool for visualizing and analyzing tokens across multiple LLM tokenizers including GPT-4, GPT-3.5, GPT-5 (including gpt5-mini and gpt5-nano), Claude, LLaMA, and others.
+Token Visualizer is a tool for visualizing and analyzing tokens across multiple LLM tokenizers including GPT-4, GPT-3.5, GPT-5 (including gpt5-mini and gpt5-nano), Claude, LLaMA 1/2, LLaMA 3+, and others.
 
 **Language:** Go 1.25 (REQUIRED - do not use older Go versions)
 
@@ -88,11 +88,25 @@ The tool supports the following LLM tokenizers:
 - And other Anthropic models available via the Token Counting API
 
 ### LLaMA Models
-- **LLaMA**: Uses SentencePiece tokenizer
+
+#### LLaMA 1/2 (SentencePiece)
+- **LLaMA 1/2**: Uses SentencePiece tokenizer with 32K vocabulary
 - **Required format**: `llama:/path/to/tokenizer.model`
   - Example: `llama:/models/llama2/tokenizer.model`
-  - Example: `llama:/models/llama3/tokenizer.model`
-  - This allows comparing multiple LLaMA models with different tokenizer files
+  - Example: `llama:./tokenizer.model`
+  - Supports LLaMA 1, LLaMA 2, and Code Llama
+
+#### LLaMA 3+ (HuggingFace Tokenizers)
+- **LLaMA 3+**: Uses HuggingFace tokenizer with 128K vocabulary (tiktoken-based)
+- **Required format**: `llama3:/path/to/tokenizer.json`
+  - Example: `llama3:/models/llama3/tokenizer.json`
+  - Example: `llama3:./tokenizer.json`
+  - Supports LLaMA 3.0, 3.1, 3.2, and 3.3
+  - All LLaMA 3.x versions share the same tokenizer
+
+**Note:** LLaMA 1/2 and LLaMA 3+ use different file formats and different prefixes:
+- LLaMA 1/2: `llama:` with `tokenizer.model` (SentencePiece format)
+- LLaMA 3+: `llama3:` with `tokenizer.json` (HuggingFace format)
 
 ## Architecture Considerations
 

@@ -19,7 +19,7 @@ var CLI struct {
 }
 
 type VisualizeCmd struct {
-	Model          string `help:"Model to use: gpt4, gpt3.5, gpt5, gpt5-mini, gpt5-nano, claude:model-name, llama:path" default:"gpt4"`
+	Model          string `help:"Model to use: gpt4, gpt3.5, gpt5, gpt5-mini, gpt5-nano, claude:model-name, llama:path, llama3:path" default:"gpt4"`
 	Format         string `help:"Output format: terminal, markdown, html" default:"terminal" enum:"terminal,markdown,html"`
 	ShowIDs        bool   `help:"Show token IDs" short:"i" name:"show-ids"`
 	ShowBoundaries bool   `help:"Show token boundaries" short:"b"`
@@ -28,13 +28,13 @@ type VisualizeCmd struct {
 }
 
 type CountCmd struct {
-	Models   []string `help:"Models to count: gpt4, gpt3.5, gpt5, gpt5-mini, gpt5-nano, claude:model-name, llama:path" default:"gpt4"`
+	Models   []string `help:"Models to count: gpt4, gpt3.5, gpt5, gpt5-mini, gpt5-nano, claude:model-name, llama:path, llama3:path" default:"gpt4"`
 	Encoding string   `help:"Tiktoken encoding (for GPT models)" default:"cl100k_base"`
 	NoCache  bool     `help:"Disable caching for Claude API" short:"n"`
 }
 
 type CompareCmd struct {
-	Models         []string `help:"Models to compare: gpt4, gpt3.5, gpt5, gpt5-mini, gpt5-nano, claude:model-name, llama:path" required:""`
+	Models         []string `help:"Models to compare: gpt4, gpt3.5, gpt5, gpt5-mini, gpt5-nano, claude:model-name, llama:path, llama3:path" required:""`
 	Format         string   `help:"Output format: terminal, markdown, html" default:"terminal" enum:"terminal,markdown,html"`
 	ShowIDs        bool     `help:"Show token IDs" short:"i" name:"show-ids"`
 	ShowBoundaries bool     `help:"Show token boundaries" short:"b"`
@@ -204,6 +204,12 @@ func createTokenizer(model, encoding string, useCache bool) (tokenizers.Tokenize
 			return nil, fmt.Errorf("llama model requires format: llama:/path/to/tokenizer.model")
 		}
 		return tokenizers.NewLLaMATokenizer(parts[1])
+	case "llama3":
+		// Require llama3:/path format
+		if len(parts) != 2 || parts[1] == "" {
+			return nil, fmt.Errorf("llama3 model requires format: llama3:/path/to/tokenizer.json")
+		}
+		return tokenizers.NewLLaMA3Tokenizer(parts[1])
 	default:
 		return nil, fmt.Errorf("unknown model: %s", model)
 	}

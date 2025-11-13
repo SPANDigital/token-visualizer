@@ -12,7 +12,8 @@ Built following Unix philosophy: reads from stdin, outputs to stdout, with color
 - 🔄 **Supports multiple tokenizers**:
   - OpenAI (GPT-4, GPT-3.5, GPT-5, GPT-5-mini, GPT-5-nano) via tiktoken
   - Anthropic Claude via API
-  - Meta LLaMA via SentencePiece
+  - Meta LLaMA 1/2 via SentencePiece
+  - Meta LLaMA 3+ via HuggingFace Tokenizers
 - ⚡ **Fast** with local caching for API calls
 - 🔌 **Unix-friendly**: pipe text in, get results out
 
@@ -60,9 +61,10 @@ echo "Your text here" | ./token-visualizer visualize [flags]
 ```
 
 **Flags:**
-- `--model` - Model to use: `gpt4`, `gpt3.5`, `gpt5`, `gpt5-mini`, `gpt5-nano`, `claude:model-name`, `llama:path` (default: `gpt4`)
+- `--model` - Model to use: `gpt4`, `gpt3.5`, `gpt5`, `gpt5-mini`, `gpt5-nano`, `claude:model-name`, `llama:path`, `llama3:path` (default: `gpt4`)
   - For Claude, use format: `claude:claude-3-5-sonnet-20241022`
-  - For LLaMA, use format: `llama:/path/to/tokenizer.model`
+  - For LLaMA 1/2, use format: `llama:/path/to/tokenizer.model`
+  - For LLaMA 3+, use format: `llama3:/path/to/tokenizer.json`
 - `--format` - Output format: `terminal`, `markdown`, `html` (default: `terminal`)
 - `--show-ids`, `-i` - Show token IDs
 - `--show-boundaries`, `-b` - Show token boundaries
@@ -130,7 +132,7 @@ echo "Hello, world!" | ./token-visualizer compare \
   --show-ids
 ```
 
-### LLaMA tokenizer
+### LLaMA 1/2 tokenizer
 
 ```bash
 echo "Hello, world!" | ./token-visualizer \
@@ -138,6 +140,15 @@ echo "Hello, world!" | ./token-visualizer \
 ```
 
 **Note:** See [Obtaining LLaMA Tokenizer Files](#obtaining-llama-tokenizer-files) below for instructions on how to get the `tokenizer.model` file.
+
+### LLaMA 3+ tokenizer
+
+```bash
+echo "Hello, world!" | ./token-visualizer \
+  --model llama3:/path/to/tokenizer.json
+```
+
+**Note:** See [Obtaining LLaMA 3+ Tokenizer Files](#obtaining-llama-3-tokenizer-files) below for instructions on how to get the `tokenizer.json` file.
 
 ### Export comparison to HTML
 
@@ -249,12 +260,12 @@ The token-visualizer tool requires a `tokenizer.model` file to work with LLaMA m
 
 | Version | Tokenizer Type | Vocab Size | Supported | Notes |
 |---------|---------------|------------|-----------|-------|
-| LLaMA 1 | SentencePiece | 32K | ✅ Yes | Original LLaMA |
-| LLaMA 2 | SentencePiece | 32K | ✅ Yes | Recommended |
-| Code Llama | SentencePiece | 32K | ✅ Yes | Same as LLaMA 2 |
-| LLaMA 3+ | TikToken | 128K | ❌ No | Different tokenizer format |
+| LLaMA 1 | SentencePiece | 32K | ✅ Yes | Original LLaMA, use `llama:` |
+| LLaMA 2 | SentencePiece | 32K | ✅ Yes | Recommended, use `llama:` |
+| Code Llama | SentencePiece | 32K | ✅ Yes | Same as LLaMA 2, use `llama:` |
+| LLaMA 3+ | TikToken-based | 128K | ✅ Yes | Use `llama3:` with tokenizer.json |
 
-**Important:** All model sizes within the same version (7B, 13B, 70B) share the same tokenizer file.
+**Important:** All model sizes within the same version (7B, 13B, 70B, etc.) share the same tokenizer file.
 
 ### Alternative Method: Official Meta Download
 
@@ -307,15 +318,125 @@ LLaMA tokenizer files are subject to Meta's LLaMA Community License:
 
 **Note:** We cannot distribute `tokenizer.model` files with this tool. Users must obtain them directly from Meta or authorized sources.
 
+## Obtaining LLaMA 3+ Tokenizer Files
+
+The token-visualizer tool requires a `tokenizer.json` file to work with LLaMA 3+ models (LLaMA 3.0, 3.1, 3.2, 3.3). Here's how to obtain it:
+
+### Quick Start (Recommended Method)
+
+1. **Request Access**
+   - Visit https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct
+   - Click "Access repository" and accept Meta's license agreement
+   - Wait for approval (usually processed within an hour)
+
+2. **Install HuggingFace CLI**
+   ```bash
+   pip install huggingface-hub
+   ```
+
+3. **Login to HuggingFace**
+   ```bash
+   huggingface-cli login
+   # Enter your HuggingFace token when prompted
+   ```
+
+4. **Download Tokenizer**
+   ```bash
+   # For LLaMA 3/3.1
+   huggingface-cli download meta-llama/Meta-Llama-3-8B-Instruct \
+     tokenizer.json \
+     --local-dir ./llama3-tokenizer
+
+   # For LLaMA 3.2
+   huggingface-cli download meta-llama/Llama-3.2-3B-Instruct \
+     tokenizer.json \
+     --local-dir ./llama3-tokenizer
+
+   # For LLaMA 3.3
+   huggingface-cli download meta-llama/Llama-3.3-70B-Instruct \
+     tokenizer.json \
+     --local-dir ./llama3-tokenizer
+   ```
+
+5. **Use with token-visualizer**
+   ```bash
+   echo "Hello, world!" | ./token-visualizer \
+     --model llama3:./llama3-tokenizer/tokenizer.json
+   ```
+
+### Available LLaMA 3+ Models on HuggingFace
+
+| Model Family | Model Name | Size | HuggingFace Path |
+|-------------|------------|------|------------------|
+| LLaMA 3.0 | Base | 8B, 70B | meta-llama/Meta-Llama-3-8B |
+| LLaMA 3.0 | Instruct | 8B, 70B | meta-llama/Meta-Llama-3-8B-Instruct |
+| LLaMA 3.1 | Base | 8B, 70B, 405B | meta-llama/Meta-Llama-3.1-8B |
+| LLaMA 3.1 | Instruct | 8B, 70B, 405B | meta-llama/Meta-Llama-3.1-8B-Instruct |
+| LLaMA 3.2 | Base | 1B, 3B | meta-llama/Llama-3.2-1B |
+| LLaMA 3.2 | Instruct | 1B, 3B, 11B, 90B | meta-llama/Llama-3.2-3B-Instruct |
+| LLaMA 3.3 | Instruct | 70B | meta-llama/Llama-3.3-70B-Instruct |
+
+**Note:** All LLaMA 3.x versions share the same tokenizer, so you can use any `tokenizer.json` from the above models.
+
+### Verifying Your Tokenizer File
+
+Check the file size to ensure it downloaded correctly:
+
+```bash
+ls -lh tokenizer.json
+# Should be approximately 17MB for LLaMA 3+ tokenizers
+```
+
+Test with token-visualizer:
+
+```bash
+echo "Test tokenization" | ./token-visualizer \
+  --model llama3:./tokenizer.json \
+  --show-ids
+
+# Should display colorized tokens with IDs
+```
+
+### Comparing LLaMA Versions
+
+You can compare tokenization across different LLaMA versions:
+
+```bash
+echo "The quick brown fox" | ./token-visualizer compare \
+  --models llama:./llama2/tokenizer.model,llama3:./llama3/tokenizer.json \
+  --show-ids
+```
+
+### License Information
+
+LLaMA 3+ tokenizer files are subject to Meta's license agreements:
+
+- ✅ **Allowed:** Research, development, commercial use (with restrictions based on model size)
+- ❌ **Not Allowed:** Redistribution without permission
+- **Full License:** https://www.llama.com/llama-downloads/
+
+**Note:** We cannot distribute `tokenizer.json` files with this tool. Users must obtain them directly from Meta or authorized sources.
+
 ### Troubleshooting
 
-**Error: "tokenizer model file not found"**
+**Error: "tokenizer model file not found" (LLaMA 1/2)**
 - Use absolute path: `llama:/Users/you/path/to/tokenizer.model`
 - Verify file exists: `ls -l /path/to/tokenizer.model`
+- Make sure you're using `llama:` for LLaMA 1/2 models
+
+**Error: "tokenizer file not found" (LLaMA 3+)**
+- Use absolute path: `llama3:/Users/you/path/to/tokenizer.json`
+- Verify file exists: `ls -l /path/to/tokenizer.json`
+- Make sure you're using `llama3:` for LLaMA 3+ models
 
 **Error: "Internal: could not parse ModelProto"**
-- You may be using a LLaMA 3 tokenizer (not supported)
-- Download LLaMA 2 tokenizer instead
+- You're trying to use a LLaMA 3+ tokenizer.json with `llama:` prefix
+- Use `llama3:` prefix instead: `llama3:/path/to/tokenizer.json`
+
+**Error: "failed to load LLaMA 3 tokenizer"**
+- Ensure you downloaded `tokenizer.json`, not `tokenizer.model`
+- Verify the JSON file is valid: `jq . tokenizer.json`
+- Try downloading the file again
 
 **HuggingFace access denied:**
 - Ensure you've accepted the license on the HuggingFace model page
