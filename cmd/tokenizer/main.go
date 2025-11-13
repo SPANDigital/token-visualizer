@@ -72,13 +72,8 @@ func (v *VisualizeCmd) Run() error {
 		renderer := output.NewMarkdownRenderer(v.ShowIDs)
 		outputStr = renderer.RenderSingle(result)
 	case "html":
-		mdRenderer := output.NewMarkdownRenderer(v.ShowIDs)
-		markdown := mdRenderer.RenderSingle(result)
-		htmlRenderer := output.NewHTMLRenderer()
-		outputStr, err = htmlRenderer.Convert(markdown)
-		if err != nil {
-			return fmt.Errorf("HTML conversion failed: %w", err)
-		}
+		renderer := output.NewHTMLInlineRenderer(v.ShowIDs, v.ShowBoundaries)
+		outputStr = renderer.RenderSingle(result)
 	}
 
 	fmt.Print(outputStr)
@@ -152,13 +147,8 @@ func (c *CompareCmd) Run() error {
 		renderer := output.NewMarkdownRenderer(c.ShowIDs)
 		outputStr = renderer.RenderComparison(results)
 	case "html":
-		mdRenderer := output.NewMarkdownRenderer(c.ShowIDs)
-		markdown := mdRenderer.RenderComparison(results)
-		htmlRenderer := output.NewHTMLRenderer()
-		outputStr, err = htmlRenderer.Convert(markdown)
-		if err != nil {
-			return fmt.Errorf("HTML conversion failed: %w", err)
-		}
+		renderer := output.NewHTMLInlineRenderer(c.ShowIDs, c.ShowBoundaries)
+		outputStr = renderer.RenderComparison(results)
 	}
 
 	fmt.Print(outputStr)
