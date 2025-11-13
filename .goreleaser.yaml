@@ -108,12 +108,18 @@ release:
 
     ### Installation
 
-    Download the appropriate binary for your platform below and extract it to your PATH.
+    **Homebrew (macOS/Linux):**
+    ```bash
+    brew install SPANDigital/tap/token-visualizer
+    ```
 
     **Container Image:**
     ```bash
     docker pull ghcr.io/spandigital/token-visualizer:{{ .Tag }}
     ```
+
+    **Manual Installation:**
+    Download the appropriate binary for your platform below and extract it to your PATH.
   footer: |
     ---
     **Full Changelog**: https://github.com/SPANDigital/token-visualizer/compare/{{ .PreviousTag }}...{{ .Tag }}
@@ -121,16 +127,15 @@ release:
     🤖 Built with [GoReleaser](https://goreleaser.com)
 
 # Homebrew Tap (using homebrew_casks for CLI tools)
-# Disabled until GH_PAT secret is configured
-# homebrew_casks:
-#   - repository:
-#       owner: SPANDigital
-#       name: homebrew-tap
-#       token: "{{ .Env.GH_PAT }}"
-#     homepage: https://github.com/SPANDigital/token-visualizer
-#     description: "Modern CLI tool for visualizing and analyzing LLM tokens"
-#     license: MIT
-#     skip_upload: auto
+homebrew_casks:
+  - repository:
+      owner: SPANDigital
+      name: homebrew-tap
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
+    homepage: https://github.com/SPANDigital/token-visualizer
+    description: "Modern CLI tool for visualizing and analyzing LLM tokens"
+    license: MIT
+    skip_upload: auto
 
 # Container images using ko (multi-arch)
 kos:

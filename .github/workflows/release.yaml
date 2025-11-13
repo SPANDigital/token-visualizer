@@ -45,7 +45,7 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_PAT: ${{ secrets.GH_PAT }}
+          TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
           KO_DOCKER_REPO: ghcr.io/spandigital/token-visualizer
 
       - name: Attest build provenance
