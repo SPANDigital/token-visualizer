@@ -33,6 +33,32 @@ o200k_base: 10 tokens
 
 ## Installation
 
+### Homebrew (Recommended)
+
+**macOS and Linux:**
+```bash
+brew install SPANDigital/tap/token-visualizer
+```
+
+### Container Image
+
+```bash
+# Pull the image
+docker pull ghcr.io/spandigital/token-visualizer:latest
+
+# Run with stdin
+echo "Your text" | docker run -i ghcr.io/spandigital/token-visualizer:latest --show-ids
+```
+
+### Download Binary
+
+Download pre-built binaries from [GitHub Releases](https://github.com/SPANDigital/token-visualizer/releases/latest) for:
+- Linux (amd64, arm64)
+- macOS (Intel, Apple Silicon)
+- Windows (amd64)
+
+### Build from Source
+
 ```bash
 # Clone the repository
 git clone https://github.com/spandigital/token-visualizer.git
@@ -44,6 +70,8 @@ go build -o token-visualizer ./cmd/tokenizer
 # Install (optional)
 go install ./cmd/tokenizer
 ```
+
+**Requirements:** Go 1.25+
 
 ## Quick Start
 
