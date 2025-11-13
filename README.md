@@ -4,6 +4,20 @@ A modern CLI tool for visualizing and analyzing tokens from various LLM tokenize
 
 Built following Unix philosophy: reads from stdin, outputs to stdout, with colorized terminal output or markdown/HTML export.
 
+## Quick Example
+
+```bash
+$ echo "Hello, world! 你好世界 🌍" | token-visualizer count --models gpt4,gpt5
+╭─────────────────╮
+│ 📊 Token Counts │
+╰─────────────────╯
+
+cl100k_base: 14 tokens
+o200k_base: 10 tokens
+```
+
+*GPT-5's new encoding is 40% more efficient for Unicode! ✨*
+
 ## Features
 
 - 🎨 **Colorized terminal output** with token boundaries and IDs
@@ -94,19 +108,69 @@ echo "Your text here" | ./token-visualizer compare --models gpt4,claude:claude-3
 
 ## Examples
 
-### GPT-4 with token IDs
+### Basic Visualization with Token IDs
 
 ```bash
-echo "The quick brown fox" | ./token-visualizer --show-ids
+echo "The quick brown fox jumps over the lazy dog." | ./token-visualizer --show-ids --show-boundaries
 ```
 
-### Compare GPT-4 and GPT-5 encodings
+**Output:**
+```
+╭────────────────╮
+│ 🔤 cl100k_base │
+╰────────────────╯
+
+Total tokens: 10
+
+The|[791] quick|[4062] brown|[14198] fox|[39935] jumps|[35308] over|[927] the|[279] lazy|[16053] dog|[5679].[13]
+```
+
+### Compare GPT-4 and GPT-5 Encodings
 
 ```bash
-echo "Hello, world!" | ./token-visualizer compare \
+echo "The quick brown fox jumps over the lazy dog." | ./token-visualizer compare \
   --models gpt4,gpt5 \
   --show-ids
 ```
+
+**Output:**
+```
+╭──────────────────────────────────────────────────╮╭──────────────────────────────────────────────────╮
+│                                                  ││                                                  │
+│ cl100k_base                                      ││ o200k_base                                       │
+│                                                  ││                                                  │
+│ Tokens: 10                                       ││ Tokens: 10                                       │
+│                                                  ││                                                  │
+│ The(791)                                         ││ The(976)                                         │
+│  quick(4062)                                     ││  quick(4853)                                     │
+│  brown(14198)                                    ││  brown(19705)                                    │
+│  fox(39935)                                      ││  fox(68347)                                      │
+│  jumps(35308)                                    ││  jumps(65613)                                    │
+│  over(927)                                       ││  over(1072)                                      │
+│  the(279)                                        ││  the(290)                                        │
+│  lazy(16053)                                     ││  lazy(29082)                                     │
+│  dog(5679)                                       ││  dog(6446)                                       │
+│ .(13)                                            ││ .(13)                                            │
+╰──────────────────────────────────────────────────╯╰──────────────────────────────────────────────────╯
+```
+
+### Token Count Comparison with Unicode
+
+```bash
+echo "Hello, world! 你好世界 🌍" | ./token-visualizer count --models gpt4,gpt5
+```
+
+**Output:**
+```
+╭─────────────────╮
+│ 📊 Token Counts │
+╰─────────────────╯
+
+cl100k_base: 14 tokens
+o200k_base: 10 tokens
+```
+
+*Note: GPT-5's o200k_base encoding is more efficient for Unicode text!*
 
 ### Compare GPT-5 variants
 
