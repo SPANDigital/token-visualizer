@@ -137,6 +137,8 @@ echo "Hello, world!" | ./token-visualizer \
   --model llama:/path/to/tokenizer.model
 ```
 
+**Note:** See [Obtaining LLaMA Tokenizer Files](#obtaining-llama-tokenizer-files) below for instructions on how to get the `tokenizer.model` file.
+
 ### Export comparison to HTML
 
 ```bash
@@ -207,6 +209,118 @@ for file in *.txt; do
     --models gpt4,gpt5,claude:claude-3-5-sonnet-20241022,claude:claude-3-5-haiku-20241022
 done
 ```
+
+## Obtaining LLaMA Tokenizer Files
+
+The token-visualizer tool requires a `tokenizer.model` file to work with LLaMA models. Here's how to obtain it:
+
+### Quick Start (Recommended Method)
+
+1. **Request Access**
+   - Visit https://huggingface.co/meta-llama/Llama-2-7b
+   - Click "Access repository" and accept Meta's LLaMA Community License
+   - Wait for approval (usually processed within an hour)
+
+2. **Install HuggingFace CLI**
+   ```bash
+   pip install huggingface-hub
+   ```
+
+3. **Login to HuggingFace**
+   ```bash
+   huggingface-cli login
+   # Enter your HuggingFace token when prompted
+   ```
+
+4. **Download Tokenizer**
+   ```bash
+   huggingface-cli download meta-llama/Llama-2-7b \
+     tokenizer.model \
+     --local-dir ./llama-tokenizer
+   ```
+
+5. **Use with token-visualizer**
+   ```bash
+   echo "Hello, world!" | ./token-visualizer \
+     --model llama:./llama-tokenizer/tokenizer.model
+   ```
+
+### Supported LLaMA Versions
+
+| Version | Tokenizer Type | Vocab Size | Supported | Notes |
+|---------|---------------|------------|-----------|-------|
+| LLaMA 1 | SentencePiece | 32K | ✅ Yes | Original LLaMA |
+| LLaMA 2 | SentencePiece | 32K | ✅ Yes | Recommended |
+| Code Llama | SentencePiece | 32K | ✅ Yes | Same as LLaMA 2 |
+| LLaMA 3+ | TikToken | 128K | ❌ No | Different tokenizer format |
+
+**Important:** All model sizes within the same version (7B, 13B, 70B) share the same tokenizer file.
+
+### Alternative Method: Official Meta Download
+
+1. Visit https://www.llama.com/llama-downloads/
+2. Fill out the request form
+3. Wait for the signed download URL via email
+4. Clone and run the official download script:
+   ```bash
+   git clone https://github.com/meta-llama/llama.git
+   cd llama
+   ./download.sh
+   # Paste the signed URL when prompted
+   ```
+5. The `tokenizer.model` file will be in the downloaded directory
+
+### Direct Download (Advanced)
+
+For users with HuggingFace access:
+
+```bash
+wget https://huggingface.co/meta-llama/Llama-2-7b/resolve/main/tokenizer.model
+```
+
+### Verifying Your Tokenizer File
+
+Check the file size to ensure it downloaded correctly:
+
+```bash
+ls -lh tokenizer.model
+# Should be approximately 500KB (499,723 bytes) for LLaMA 2
+```
+
+Test with token-visualizer:
+
+```bash
+echo "Test tokenization" | ./token-visualizer \
+  --model llama:./tokenizer.model \
+  --show-ids
+
+# Should display colorized tokens with IDs
+```
+
+### License Information
+
+LLaMA tokenizer files are subject to Meta's LLaMA Community License:
+
+- ✅ **Allowed:** Research, development, commercial use (<700M monthly active users)
+- ❌ **Not Allowed:** Redistribution without permission, use in apps with >700M MAU without special approval
+- **Full License:** https://www.llama.com/llama-downloads/
+
+**Note:** We cannot distribute `tokenizer.model` files with this tool. Users must obtain them directly from Meta or authorized sources.
+
+### Troubleshooting
+
+**Error: "tokenizer model file not found"**
+- Use absolute path: `llama:/Users/you/path/to/tokenizer.model`
+- Verify file exists: `ls -l /path/to/tokenizer.model`
+
+**Error: "Internal: could not parse ModelProto"**
+- You may be using a LLaMA 3 tokenizer (not supported)
+- Download LLaMA 2 tokenizer instead
+
+**HuggingFace access denied:**
+- Ensure you've accepted the license on the HuggingFace model page
+- Wait for approval email (usually takes <1 hour)
+- Try logging out and back in: `huggingface-cli logout && huggingface-cli login`
 
 ## CI/CD
 
